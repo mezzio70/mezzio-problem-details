@@ -13,7 +13,10 @@ use PHPUnit\Framework\TestCase;
 
 class ConfigProviderTest extends TestCase
 {
-    public function testReturnsExpectedDependencies(): void
+    /**
+     * @return void
+     */
+    public function testReturnsExpectedDependencies()
     {
         $provider = new ConfigProvider();
         $config   = $provider();

@@ -28,12 +28,19 @@ class ProblemDetailsResponseFactoryFactoryTest extends TestCase
     /** @var ContainerInterface&MockObject */
     private $container;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         $this->container = $this->createMock(ContainerInterface::class);
     }
 
-    public function assertResponseFactoryReturns(ResponseInterface $expected, ProblemDetailsResponseFactory $factory)
+    /**
+     * @param ResponseInterface $expected
+     * @param ProblemDetailsResponseFactory $factory
+     */
+    public function assertResponseFactoryReturns($expected, $factory)
     {
         $r = new ReflectionProperty($factory, 'responseFactory');
         $r->setAccessible(true);
@@ -79,7 +86,10 @@ class ProblemDetailsResponseFactoryFactoryTest extends TestCase
         $factory($this->container);
     }
 
-    public function testLackOfConfigServiceResultsInFactoryUsingDefaults(): void
+    /**
+     * @return void
+     */
+    public function testLackOfConfigServiceResultsInFactoryUsingDefaults()
     {
         $this->container
             ->method('has')
@@ -91,7 +101,9 @@ class ProblemDetailsResponseFactoryFactoryTest extends TestCase
         $this->container
             ->method('get')
             ->with(ResponseInterface::class)
-            ->willReturn(static fn(): ResponseInterface => $response);
+            ->willReturn(static function () use ($response): ResponseInterface {
+                return $response;
+            });
 
         $factoryFactory = new ProblemDetailsResponseFactoryFactory();
         $factory        = $factoryFactory($this->container);
@@ -114,7 +126,10 @@ class ProblemDetailsResponseFactoryFactoryTest extends TestCase
         $this->assertResponseFactoryReturns($response, $factory);
     }
 
-    public function testUsesPrettyPrintFlagOnEnabledDebugMode(): void
+    /**
+     * @return void
+     */
+    public function testUsesPrettyPrintFlagOnEnabledDebugMode()
     {
         $this->container
             ->method('has')
@@ -141,7 +156,10 @@ class ProblemDetailsResponseFactoryFactoryTest extends TestCase
         self::assertSame(JSON_PRETTY_PRINT, $jsonFlags->getValue($factory) & JSON_PRETTY_PRINT);
     }
 
-    public function testUsesDebugSettingFromConfigWhenPresent(): void
+    /**
+     * @return void
+     */
+    public function testUsesDebugSettingFromConfigWhenPresent()
     {
         $this->container
             ->method('has')
@@ -172,7 +190,10 @@ class ProblemDetailsResponseFactoryFactoryTest extends TestCase
         self::assertSame(true, $exceptionDetailsInResponse->getValue($factory));
     }
 
-    public function testUsesJsonFlagsSettingFromConfigWhenPresent(): void
+    /**
+     * @return void
+     */
+    public function testUsesJsonFlagsSettingFromConfigWhenPresent()
     {
         $this->container
             ->method('has')
@@ -199,7 +220,10 @@ class ProblemDetailsResponseFactoryFactoryTest extends TestCase
         self::assertSame(JSON_PRETTY_PRINT, $jsonFlags->getValue($factory));
     }
 
-    public function testUsesDefaultTypesSettingFromConfigWhenPresent(): void
+    /**
+     * @return void
+     */
+    public function testUsesDefaultTypesSettingFromConfigWhenPresent()
     {
         $expectedDefaultTypes = [
             404 => 'https://example.com/problem-details/error/not-found',

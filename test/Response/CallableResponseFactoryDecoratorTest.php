@@ -14,16 +14,25 @@ final class CallableResponseFactoryDecoratorTest extends TestCase
     /** @var MockObject&ResponseInterface */
     private $response;
 
-    private CallableResponseFactoryDecorator $factory;
+    /** @var CallableResponseFactoryDecorator */
+    private $factory;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         parent::setUp();
         $this->response = $this->createMock(ResponseInterface::class);
-        $this->factory  = new CallableResponseFactoryDecorator(fn(): ResponseInterface => $this->response);
+        $this->factory  = new CallableResponseFactoryDecorator(function (): ResponseInterface {
+            return $this->response;
+        });
     }
 
-    public function testWillPassStatusCodeAndPhraseToCallable(): void
+    /**
+     * @return void
+     */
+    public function testWillPassStatusCodeAndPhraseToCallable()
     {
         $this->response
             ->expects(self::once())
@@ -34,7 +43,10 @@ final class CallableResponseFactoryDecoratorTest extends TestCase
         $this->factory->createResponse(500, 'Foo');
     }
 
-    public function testWillReturnSameResponseInstance(): void
+    /**
+     * @return void
+     */
+    public function testWillReturnSameResponseInstance()
     {
         $this->response
             ->expects(self::once())

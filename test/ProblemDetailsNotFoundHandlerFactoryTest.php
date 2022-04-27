@@ -18,9 +18,13 @@ class ProblemDetailsNotFoundHandlerFactoryTest extends TestCase
     /** @var ContainerInterface&MockObject */
     private $container;
 
-    private ProblemDetailsNotFoundHandlerFactory $factory;
+    /** @var ProblemDetailsNotFoundHandlerFactory */
+    private $factory;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         $this->container = $this->createMock(ContainerInterface::class);
         $this->factory   = new ProblemDetailsNotFoundHandlerFactory();
@@ -38,7 +42,10 @@ class ProblemDetailsNotFoundHandlerFactoryTest extends TestCase
         $this->factory->__invoke($this->container);
     }
 
-    public function testCreatesNotFoundHandlerUsingResponseFactoryService(): void
+    /**
+     * @return void
+     */
+    public function testCreatesNotFoundHandlerUsingResponseFactoryService()
     {
         $responseFactory = $this->createMock(ProblemDetailsResponseFactory::class);
         $this->container

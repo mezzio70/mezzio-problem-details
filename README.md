@@ -1,6 +1,6 @@
-# Problem Details for PSR-7 Applications (RFC 7807)
+# PHP 7.0 support for Problem Details for PSR-7 Applications (RFC 7807)
 
-[![Build Status](https://github.com/mezzio/mezzio-problem-details/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/mezzio/mezzio-problem-details/actions/workflows/continuous-integration.yml)
+[![Build Status](https://github.com/mezzio70/mezzio-problem-details/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/mezzio70/mezzio-problem-details/actions/workflows/continuous-integration.yml)
 
 > ## 🇷🇺 Русским гражданам
 > 
@@ -28,7 +28,7 @@ Details responses from errors and exceptions, and custom exception types for
 Run the following to install this library:
 
 ```bash
-$ composer require mezzio/mezzio-problem-details
+$ composer require mezzio70/mezzio-problem-details
 ```
 
 ## Documentation

@@ -21,7 +21,8 @@ class ProblemDetailsMiddlewareTest extends TestCase
 {
     use ProblemDetailsAssertionsTrait;
 
-    private ProblemDetailsMiddleware $middleware;
+    /** @var ProblemDetailsMiddleware */
+    private $middleware;
 
     /** @var ServerRequestInterface&MockObject */
     private $request;
@@ -29,7 +30,10 @@ class ProblemDetailsMiddlewareTest extends TestCase
     /** @var ProblemDetailsResponseFactory&MockObject */
     private $responseFactory;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         $this->request         = $this->createMock(ServerRequestInterface::class);
         $this->responseFactory = $this->createMock(ProblemDetailsResponseFactory::class);
@@ -47,7 +51,10 @@ class ProblemDetailsMiddlewareTest extends TestCase
         ];
     }
 
-    public function testSuccessfulDelegationReturnsHandlerResponse(): void
+    /**
+     * @return void
+     */
+    public function testSuccessfulDelegationReturnsHandlerResponse()
     {
         $response = $this->createMock(ResponseInterface::class);
         $handler  = $this->createMock(RequestHandlerInterface::class);
@@ -63,8 +70,10 @@ class ProblemDetailsMiddlewareTest extends TestCase
 
     /**
      * @dataProvider acceptHeaders
+     * @param string $accept
+     * @return void
      */
-    public function testThrowableRaisedByHandlerResultsInProblemDetails(string $accept): void
+    public function testThrowableRaisedByHandlerResultsInProblemDetails($accept)
     {
         $this->request
             ->method('getHeaderLine')
@@ -92,8 +101,10 @@ class ProblemDetailsMiddlewareTest extends TestCase
 
     /**
      * @dataProvider acceptHeaders
+     * @param string $accept
+     * @return void
      */
-    public function testMiddlewareRegistersErrorHandlerToConvertErrorsToProblemDetails(string $accept): void
+    public function testMiddlewareRegistersErrorHandlerToConvertErrorsToProblemDetails($accept)
     {
         $this->request
             ->method('getHeaderLine')
@@ -124,7 +135,10 @@ class ProblemDetailsMiddlewareTest extends TestCase
         $this->assertSame($expected, $result);
     }
 
-    public function testRethrowsCaughtExceptionIfUnableToNegotiateAcceptHeader(): void
+    /**
+     * @return void
+     */
+    public function testRethrowsCaughtExceptionIfUnableToNegotiateAcceptHeader()
     {
         $this->request
             ->method('getHeaderLine')
@@ -146,8 +160,10 @@ class ProblemDetailsMiddlewareTest extends TestCase
 
     /**
      * @dataProvider acceptHeaders
+     * @param string $accept
+     * @return void
      */
-    public function testErrorHandlingTriggersListeners(string $accept): void
+    public function testErrorHandlingTriggersListeners($accept)
     {
         $this->request
             ->method('getHeaderLine')

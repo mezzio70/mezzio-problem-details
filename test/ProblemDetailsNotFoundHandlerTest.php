@@ -19,7 +19,10 @@ class ProblemDetailsNotFoundHandlerTest extends TestCase
     /** @var ProblemDetailsResponseFactory&MockObject */
     private $responseFactory;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         $this->responseFactory = $this->createMock(ProblemDetailsResponseFactory::class);
     }
@@ -34,8 +37,10 @@ class ProblemDetailsNotFoundHandlerTest extends TestCase
 
     /**
      * @dataProvider acceptHeaders
+     * @param string $acceptHeader
+     * @return void
      */
-    public function testResponseFactoryPassedInConstructorGeneratesTheReturnedResponse(string $acceptHeader): void
+    public function testResponseFactoryPassedInConstructorGeneratesTheReturnedResponse($acceptHeader)
     {
         $request = $this->createMock(ServerRequestInterface::class);
         $request->method('getMethod')->willReturn('POST');
@@ -60,7 +65,10 @@ class ProblemDetailsNotFoundHandlerTest extends TestCase
         );
     }
 
-    public function testHandlerIsCalledIfAcceptHeaderIsUnacceptable(): void
+    /**
+     * @return void
+     */
+    public function testHandlerIsCalledIfAcceptHeaderIsUnacceptable()
     {
         $request = $this->createMock(ServerRequestInterface::class);
         $request->method('getMethod')->willReturn('POST');

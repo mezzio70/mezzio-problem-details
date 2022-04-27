@@ -33,15 +33,21 @@ class ProblemDetailsResponseFactoryTest extends TestCase
     /** @var ResponseInterface&MockObject */
     private $response;
 
-    private ProblemDetailsResponseFactory $factory;
+    /** @var ProblemDetailsResponseFactory */
+    private $factory;
 
-    private const UTF_8_INVALID_2_OCTET_SEQUENCE = "\xc3\x28";
+    const UTF_8_INVALID_2_OCTET_SEQUENCE = "\xc3\x28";
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         $this->request  = $this->createMock(ServerRequestInterface::class);
         $this->response = $this->createMock(ResponseInterface::class);
-        $this->factory  = new ProblemDetailsResponseFactory(fn() => $this->response);
+        $this->factory  = new ProblemDetailsResponseFactory(function () {
+            return $this->response;
+        });
     }
 
     public function acceptHeaders(): array
@@ -57,8 +63,11 @@ class ProblemDetailsResponseFactoryTest extends TestCase
 
     /**
      * @dataProvider acceptHeaders
+     * @param string $header
+     * @param string $expectedType
+     * @return void
      */
-    public function testCreateResponseCreatesExpectedType(string $header, string $expectedType): void
+    public function testCreateResponseCreatesExpectedType($header, $expectedType)
     {
         $this->request->method('getHeaderLine')->with('Accept')->willReturn($header);
 
@@ -80,8 +89,11 @@ class ProblemDetailsResponseFactoryTest extends TestCase
 
     /**
      * @dataProvider acceptHeaders
+     * @param string $header
+     * @param string $expectedType
+     * @return void
      */
-    public function testCreateResponseFromThrowableCreatesExpectedType(string $header, string $expectedType): void
+    public function testCreateResponseFromThrowableCreatesExpectedType($header, $expectedType)
     {
         $this->request->method('getHeaderLine')->with('Accept')->willReturn($header);
 
@@ -103,11 +115,14 @@ class ProblemDetailsResponseFactoryTest extends TestCase
 
     /**
      * @dataProvider acceptHeaders
+     * @param string $header
+     * @param string $expectedType
+     * @return void
      */
     public function testCreateResponseFromThrowableCreatesExpectedTypeWithExtraInformation(
-        string $header,
-        string $expectedType
-    ): void {
+        $header,
+        $expectedType
+    ) {
         $this->request->method('getHeaderLine')->with('Accept')->willReturn($header);
 
         $stream = $this->createMock(StreamInterface::class);
@@ -120,7 +135,9 @@ class ProblemDetailsResponseFactoryTest extends TestCase
         $this->response->method('withHeader')->with('Content-Type', $expectedType)->willReturn($this->response);
 
         $factory = new ProblemDetailsResponseFactory(
-            fn() => $this->response,
+            function () {
+                return $this->response;
+            },
             ProblemDetailsResponseFactory::INCLUDE_THROWABLE_DETAILS
         );
 
@@ -135,8 +152,11 @@ class ProblemDetailsResponseFactoryTest extends TestCase
 
     /**
      * @dataProvider acceptHeaders
+     * @param string $header
+     * @param string $expectedType
+     * @return void
      */
-    public function testCreateResponseRemovesInvalidCharactersFromXmlKeys(string $header, string $expectedType): void
+    public function testCreateResponseRemovesInvalidCharactersFromXmlKeys($header, $expectedType)
     {
         $this->request->method('getHeaderLine')->with('Accept')->willReturn($header);
 
@@ -209,7 +229,10 @@ class ProblemDetailsResponseFactoryTest extends TestCase
         };
     }
 
-    public function testCreateResponseFromThrowableWillPullDetailsFromProblemDetailsExceptionInterface(): void
+    /**
+     * @return void
+     */
+    public function testCreateResponseFromThrowableWillPullDetailsFromProblemDetailsExceptionInterface()
     {
         $e      = $this->createProblemDetailsExceptionWithAdditional(['foo' => 'bar']);
         $stream = $this->createMock(StreamInterface::class);
@@ -231,7 +254,9 @@ class ProblemDetailsResponseFactoryTest extends TestCase
             ->with('Content-Type', 'application/problem+json')
             ->willReturn($this->response);
 
-        $factory = new ProblemDetailsResponseFactory(fn() => $this->response);
+        $factory = new ProblemDetailsResponseFactory(function () {
+            return $this->response;
+        });
 
         $response = $factory->createResponseFromThrowable(
             $this->request,
@@ -243,8 +268,11 @@ class ProblemDetailsResponseFactoryTest extends TestCase
 
     /**
      * @dataProvider acceptHeaders
+     * @param string $header
+     * @param string $expectedType
+     * @return void
      */
-    public function testCreateResponseRemovesResourcesFromInputData(string $header, string $expectedType): void
+    public function testCreateResponseRemovesResourcesFromInputData($header, $expectedType)
     {
         $this->request->method('getHeaderLine')->with('Accept')->willReturn($header);
 
@@ -279,7 +307,10 @@ class ProblemDetailsResponseFactoryTest extends TestCase
         $this->assertSame($this->response, $response);
     }
 
-    public function testFactoryGeneratesXmlResponseIfNegotiationFails(): void
+    /**
+     * @return void
+     */
+    public function testFactoryGeneratesXmlResponseIfNegotiationFails()
     {
         $this->request->method('getHeaderLine')->with('Accept')->willReturn('text/plain');
 
@@ -302,7 +333,10 @@ class ProblemDetailsResponseFactoryTest extends TestCase
         $this->assertSame($this->response, $response);
     }
 
-    public function testFactoryRendersPreviousExceptionsInDebugMode(): void
+    /**
+     * @return void
+     */
+    public function testFactoryRendersPreviousExceptionsInDebugMode()
     {
         $this->request->method('getHeaderLine')->with('Accept')->willReturn('application/json');
 
@@ -331,7 +365,9 @@ class ProblemDetailsResponseFactoryTest extends TestCase
         $second = new RuntimeException('second', 101011, $first);
 
         $factory = new ProblemDetailsResponseFactory(
-            fn() => $this->response,
+            function () {
+                return $this->response;
+            },
             ProblemDetailsResponseFactory::INCLUDE_THROWABLE_DETAILS
         );
 
@@ -415,7 +451,9 @@ class ProblemDetailsResponseFactoryTest extends TestCase
             ->willReturn($this->response);
 
         $factory = new ProblemDetailsResponseFactory(
-            fn() => $this->response,
+            function () {
+                return $this->response;
+            },
             false,
             null,
             true
@@ -446,7 +484,9 @@ class ProblemDetailsResponseFactoryTest extends TestCase
             ->willReturn($this->response);
 
         $factory = new ProblemDetailsResponseFactory(
-            fn() => $this->response,
+            function () {
+                return $this->response;
+            },
             false,
             null,
             false,
@@ -458,7 +498,10 @@ class ProblemDetailsResponseFactoryTest extends TestCase
         $this->assertSame($this->response, $response);
     }
 
-    public function testRenderWithMalformedUtf8Sequences(): void
+    /**
+     * @return void
+     */
+    public function testRenderWithMalformedUtf8Sequences()
     {
         $e = $this->createProblemDetailsExceptionWithAdditional([
             'malformed-utf8' => self::UTF_8_INVALID_2_OCTET_SEQUENCE,
@@ -481,7 +524,9 @@ class ProblemDetailsResponseFactoryTest extends TestCase
             ->with('Content-Type', 'application/problem+json')
             ->willReturn($this->response);
 
-        $factory = new ProblemDetailsResponseFactory(fn() => $this->response);
+        $factory = new ProblemDetailsResponseFactory(function () {
+            return $this->response;
+        });
 
         $response = $factory->createResponseFromThrowable(
             $this->request,
@@ -508,8 +553,12 @@ class ProblemDetailsResponseFactoryTest extends TestCase
 
     /**
      * @dataProvider provideMappedStatuses
+     * @param mixed[] $map
+     * @param int $status
+     * @param string $expectedType
+     * @return void
      */
-    public function testTypeIsInferredFromDefaultTypesMap(array $map, int $status, string $expectedType): void
+    public function testTypeIsInferredFromDefaultTypesMap($map, $status, $expectedType)
     {
         $this->request->method('getHeaderLine')->with('Accept')->willReturn('application/json');
 
@@ -535,7 +584,9 @@ class ProblemDetailsResponseFactoryTest extends TestCase
             ->willReturn($this->response);
 
         $factory = new ProblemDetailsResponseFactory(
-            fn() => $this->response,
+            function () {
+                return $this->response;
+            },
             false,
             null,
             false,

@@ -9,13 +9,15 @@ use Negotiation\Negotiator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
+
 use Psr\Http\Server\RequestHandlerInterface;
 
 use function sprintf;
 
 class ProblemDetailsNotFoundHandler implements MiddlewareInterface
 {
-    private ProblemDetailsResponseFactory $responseFactory;
+    /** @var ProblemDetailsResponseFactory */
+    private $responseFactory;
 
     /**
      * @param ProblemDetailsResponseFactory $responseFactory Factory to create a response to
@@ -28,6 +30,9 @@ class ProblemDetailsNotFoundHandler implements MiddlewareInterface
 
     /**
      * Creates and returns a 404 response.
+     *
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

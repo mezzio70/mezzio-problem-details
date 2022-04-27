@@ -18,9 +18,13 @@ class ProblemDetailsMiddlewareFactoryTest extends TestCase
     /** @var ContainerInterface&MockObject */
     private $container;
 
-    private ProblemDetailsMiddlewareFactory $factory;
+    /** @var ProblemDetailsMiddlewareFactory */
+    private $factory;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         $this->container = $this->createMock(ContainerInterface::class);
         $this->factory   = new ProblemDetailsMiddlewareFactory();
@@ -38,7 +42,10 @@ class ProblemDetailsMiddlewareFactoryTest extends TestCase
         $this->factory->__invoke($this->container);
     }
 
-    public function testCreatesMiddlewareUsingResponseFactoryService(): void
+    /**
+     * @return void
+     */
+    public function testCreatesMiddlewareUsingResponseFactoryService()
     {
         $responseFactory = $this->createMock(ProblemDetailsResponseFactory::class);
 

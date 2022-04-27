@@ -14,9 +14,13 @@ use Psr\Http\Message\ResponseInterface;
 
 final class Psr17ResponseFactoryTraitTest extends TestCase
 {
-    private Psr17ResponseFactoryTraitImplementation $factory;
+    /** @var Psr17ResponseFactoryTraitImplementation */
+    private $factory;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         parent::setUp();
         $this->factory = new Psr17ResponseFactoryTraitImplementation();
@@ -32,7 +36,9 @@ final class Psr17ResponseFactoryTraitTest extends TestCase
                 'dependencies' => [
                     'factories' => [
                         ResponseInterface::class
-                            => fn(): ResponseInterface => $this->createMock(ResponseInterface::class),
+                            => function (): ResponseInterface {
+                                return $this->createMock(ResponseInterface::class);
+                            },
                     ],
                 ],
             ],
@@ -53,7 +59,9 @@ final class Psr17ResponseFactoryTraitTest extends TestCase
                 'dependencies' => [
                     'delegators' => [
                         ResponseInterface::class => [
-                            fn(): ResponseInterface => $this->createMock(ResponseInterface::class),
+                            function (): ResponseInterface {
+                                return $this->createMock(ResponseInterface::class);
+                            },
                         ],
                     ],
                 ],
@@ -61,7 +69,10 @@ final class Psr17ResponseFactoryTraitTest extends TestCase
         ];
     }
 
-    public function testWillUseResponseFactoryInterfaceFromContainerWhenApplicationFactoryIsNotOverridden(): void
+    /**
+     * @return void
+     */
+    public function testWillUseResponseFactoryInterfaceFromContainerWhenApplicationFactoryIsNotOverridden()
     {
         $responseFactory = $this->createMock(ResponseFactoryInterface::class);
         $container       = new InMemoryContainer();
@@ -80,16 +91,19 @@ final class Psr17ResponseFactoryTraitTest extends TestCase
     /**
      * @param array<string,mixed> $config
      * @dataProvider configurationsWithOverriddenResponseInterfaceFactory
+     * @return void
      */
     public function testWontUseResponseFactoryInterfaceFromContainerWhenApplicationFactoryIsOverriden(
-        array $config
-    ): void {
+        $config
+    ) {
         $responseFactory = $this->createMock(ResponseFactoryInterface::class);
         $container       = new InMemoryContainer();
         $container->set('config', $config);
         $container->set(ResponseFactoryInterface::class, $responseFactory);
         $response = $this->createMock(ResponseInterface::class);
-        $container->set(ResponseInterface::class, static fn(): ResponseInterface => $response);
+        $container->set(ResponseInterface::class, static function () use ($response): ResponseInterface {
+            return $response;
+        });
 
         $detectedResponseFactory = ($this->factory)($container);
         self::assertNotSame($responseFactory, $detectedResponseFactory);

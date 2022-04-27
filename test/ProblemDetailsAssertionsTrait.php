@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace MezzioTest\ProblemDetails;
 
 use PHPUnit\Framework\Assert;
-use PHPUnit\Framework\MockObject\MockObject;
-use Psr\Http\Message\StreamInterface;
-use Throwable;
 
 use function array_walk_recursive;
 use function get_class;
@@ -19,7 +16,12 @@ use function var_export;
 
 trait ProblemDetailsAssertionsTrait
 {
-    public function assertProblemDetails(array $expected, array $details): void
+    /**
+     * @param mixed[] $expected
+     * @param mixed[] $details
+     * @return void
+     */
+    public function assertProblemDetails($expected, $details)
     {
         foreach ($expected as $key => $value) {
             $this->assertArrayHasKey(
@@ -37,7 +39,12 @@ trait ProblemDetailsAssertionsTrait
         }
     }
 
-    public function assertExceptionDetails(Throwable $e, array $details): void
+    /**
+     * @param Throwable $e
+     * @param mixed[] $details
+     * @return void
+     */
+    public function assertExceptionDetails($e, $details)
     {
         $this->assertArrayHasKey('class', $details);
         $this->assertSame(get_class($e), $details['class']);
@@ -58,13 +65,16 @@ trait ProblemDetailsAssertionsTrait
     }
 
     /**
-     * @param StreamInterface&MockObject $stream
+     * @param MockObject $stream
+     * @param string $contentType
+     * @param callable $assertion
+     * @return void
      */
     public function prepareResponsePayloadAssertions(
-        string $contentType,
-        MockObject $stream,
-        callable $assertion
-    ): void {
+        $contentType,
+        $stream,
+        $assertion
+    ) {
         if ('application/problem+json' === $contentType) {
             $this->preparePayloadForJsonResponse($stream, $assertion);
             return;
@@ -77,9 +87,11 @@ trait ProblemDetailsAssertionsTrait
     }
 
     /**
-     * @param StreamInterface&MockObject $stream
+     * @param MockObject $stream
+     * @param callable $assertion
+     * @return void
      */
-    public function preparePayloadForJsonResponse(MockObject $stream, callable $assertion): void
+    public function preparePayloadForJsonResponse($stream, $assertion)
     {
         $stream
             ->expects($this->any())
@@ -93,9 +105,11 @@ trait ProblemDetailsAssertionsTrait
     }
 
     /**
-     * @param StreamInterface&MockObject $stream
+     * @param MockObject $stream
+     * @param callable $assertion
+     * @return void
      */
-    public function preparePayloadForXmlResponse(MockObject $stream, callable $assertion): void
+    public function preparePayloadForXmlResponse($stream, $assertion)
     {
         $stream
             ->expects($this->any())
@@ -108,7 +122,10 @@ trait ProblemDetailsAssertionsTrait
             }));
     }
 
-    public function deserializeXmlPayload(string $xml): array
+    /**
+     * @param string $xml
+     */
+    public function deserializeXmlPayload($xml): array
     {
         $xml     = simplexml_load_string($xml);
         $json    = json_encode($xml);

@@ -6,7 +6,7 @@ To install this package in your application, use
 [Composer](https://getcomposer.org):
 
 ```bash
-$ composer require mezzio/mezzio-problem-details
+$ composer require mezzio70/mezzio-problem-details
 ```
 
 ## Usage

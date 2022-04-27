@@ -1,6 +1,6 @@
 {
-    "name": "mezzio/mezzio-problem-details",
-    "description": "Problem Details for PSR-7 HTTP APIs addressing the RFC 7807 standard",
+    "name": "mezzio70/mezzio-problem-details",
+    "description": "PHP 7.0 support for: Problem Details for PSR-7 HTTP APIs addressing the RFC 7807 standard",
     "license": "BSD-3-Clause",
     "keywords": [
         "laminas",
@@ -9,14 +9,15 @@
         "rest",
         "problem-details",
         "rfc 7807",
-        "rfc7807"
+        "rfc7807",
+        "PHP 7.0"
     ],
     "homepage": "https://mezzio.dev",
     "support": {
         "docs": "https://docs.mezzio.dev/mezzio-problem-details/",
-        "issues": "https://github.com/mezzio/mezzio-problem-details/issues",
-        "source": "https://github.com/mezzio/mezzio-problem-details",
-        "rss": "https://github.com/mezzio/mezzio-problem-details/releases.atom",
+        "issues": "https://github.com/mezzio70/mezzio-problem-details/issues",
+        "source": "https://github.com/mezzio70/mezzio-problem-details",
+        "rss": "https://github.com/mezzio70/mezzio-problem-details/releases.atom",
         "chat": "https://laminas.dev/chat",
         "forum": "https://discourse.laminas.dev"
     },
@@ -27,7 +28,7 @@
             "composer/package-versions-deprecated": true
         },
         "platform": {
-            "php": "7.4.99"
+            "php": "7.0.0"
         }
     },
     "extra": {
@@ -36,7 +37,7 @@
         }
     },
     "require": {
-        "php": "^7.4 || ~8.0.0 || ~8.1.0",
+        "php": ">=7.0",
         "ext-json": "*",
         "fig/http-message-util": "^1.1.2",
         "psr/container": "^1.0 || ^2.0",
@@ -44,14 +45,12 @@
         "psr/http-message": "^1.0",
         "psr/http-server-middleware": "^1.0",
         "spatie/array-to-xml": "^2.3 || ^3.0",
-        "webmozart/assert": "^1.10",
-        "willdurand/negotiation": "^3.0"
+        "webmozart/assert": "^1.9.1",
+        "willdurand/negotiation": "^2.3.1"
     },
     "require-dev": {
-        "laminas/laminas-coding-standard": "~2.3.0",
-        "phpunit/phpunit": "^9.5.11",
-        "psalm/plugin-phpunit": "^0.16.1",
-        "vimeo/psalm": "^4.17"
+        "laminas70/laminas-coding-standard": "2.4.x-dev",
+        "phpunit/phpunit": "^6.5.14"
     },
     "autoload": {
         "psr-4": {
@@ -76,5 +75,9 @@
     },
     "conflict": {
         "zendframework/zend-problem-details": "*"
-    }
+    },
+    "replace": {
+        "mezzio/mezzio-problem-details": "*"
+    },
+    "minimum-stability": "dev"
 }

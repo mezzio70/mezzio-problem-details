@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Mezzio\ProblemDetails;
 
-use Closure;
 use Fig\Http\Message\StatusCodeInterface as StatusCode;
 use Mezzio\ProblemDetails\Response\CallableResponseFactoryDecorator;
 use Negotiation\Negotiator;
@@ -16,6 +15,7 @@ use Throwable;
 
 use function array_merge;
 use function array_walk_recursive;
+use function func_get_args;
 use function get_class;
 use function get_resource_type;
 use function is_array;
@@ -59,23 +59,23 @@ class ProblemDetailsResponseFactory
     /**
      * @var string Content-Type header for JSON responses
      */
-    public const CONTENT_TYPE_JSON = 'application/problem+json';
+    const CONTENT_TYPE_JSON = 'application/problem+json';
 
     /**
      * @var string Content-Type header for XML responses
      */
-    public const CONTENT_TYPE_XML = 'application/problem+xml';
+    const CONTENT_TYPE_XML = 'application/problem+xml';
 
     /**
      * @var string Default detail message to use for exceptions when the
      *     $exceptionDetailsInResponse flag is false.
      */
-    public const DEFAULT_DETAIL_MESSAGE = 'An unknown error occurred.';
+    const DEFAULT_DETAIL_MESSAGE = 'An unknown error occurred.';
 
     /**
      * @var string[] Default problem detail titles based on status code
      */
-    public const DEFAULT_TITLE_MAP = [
+    const DEFAULT_TITLE_MAP = [
         // 4×× Client Error
         StatusCode::STATUS_BAD_REQUEST                     => 'Bad Request',
         StatusCode::STATUS_UNAUTHORIZED                    => 'Unauthorized',
@@ -129,7 +129,7 @@ class ProblemDetailsResponseFactory
      *
      * @var bool
      */
-    public const EXCLUDE_THROWABLE_DETAILS = false;
+    const EXCLUDE_THROWABLE_DETAILS = false;
 
     /**
      * Constant value to indicate throwable details (backtrace, previous
@@ -138,12 +138,12 @@ class ProblemDetailsResponseFactory
      *
      * @var bool
      */
-    public const INCLUDE_THROWABLE_DETAILS = true;
+    const INCLUDE_THROWABLE_DETAILS = true;
 
     /**
      * @var string[] Accept header types to match.
      */
-    public const NEGOTIATION_PRIORITIES = [
+    const NEGOTIATION_PRIORITIES = [
         'application/json',
         'application/*+json',
         'application/xml',
@@ -156,8 +156,10 @@ class ProblemDetailsResponseFactory
      * Debug details are only included for responses created from throwables,
      * and include full exception details and previous exceptions and their
      * details.
+     *
+     * @var bool
      */
-    private bool $isDebug;
+    private $isDebug;
 
     /**
      * JSON flags to use when generating JSON response payload.
@@ -169,51 +171,64 @@ class ProblemDetailsResponseFactory
      * On debug mode:
      * defaults to JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION
      * | JSON_PARTIAL_OUTPUT_ON_ERROR
+     *
+     * @var int
      */
-    private int $jsonFlags;
+    private $jsonFlags;
 
     /**
      * Factory to use to generate prototype response used when generating a
      * problem details response.
+     *
+     * @var ResponseFactoryInterface
      */
-    private ResponseFactoryInterface $responseFactory;
+    private $responseFactory;
 
     /**
      * Flag to enable show exception details in detail field.
      *
      * Disabled by default for security reasons.
+     *
+     * @var bool
      */
-    private bool $exceptionDetailsInResponse;
+    private $exceptionDetailsInResponse;
 
     /**
      * Default detail field value. Will be visible when
      * $exceptionDetailsInResponse disabled.
      *
      * Empty string by default
+     *
+     * @var string
      */
-    private string $defaultDetailMessage;
+    private $defaultDetailMessage;
 
     /**
      * A map used to infer the "type" property based on the status code.
      *
      * Defaults to an empty map.
+     *
+     * @var mixed[]
      */
-    private array $defaultTypesMap;
+    private $defaultTypesMap;
 
     /**
      * @param (callable():ResponseInterface)|ResponseFactoryInterface $responseFactory
+     * @param int|null $jsonFlags
      */
     public function __construct(
         $responseFactory,
         bool $isDebug = self::EXCLUDE_THROWABLE_DETAILS,
-        ?int $jsonFlags = null,
+        $jsonFlags = null,
         bool $exceptionDetailsInResponse = false,
         string $defaultDetailMessage = self::DEFAULT_DETAIL_MESSAGE,
         array $defaultTypesMap = []
     ) {
         if (is_callable($responseFactory)) {
             $responseFactory = new CallableResponseFactoryDecorator(
-                static fn(): ResponseInterface => $responseFactory()
+                static function () use ($responseFactory): ResponseInterface {
+                    return $responseFactory();
+                }
             );
         }
         // Ensures type safety of the composed factory
@@ -234,13 +249,21 @@ class ProblemDetailsResponseFactory
         $this->defaultTypesMap            = $defaultTypesMap;
     }
 
+    /**
+     * @param ServerRequestInterface $request
+     * @param int $status
+     * @param string $detail
+     * @param string $title
+     * @param string $type
+     * @param mixed[] $additional
+     */
     public function createResponse(
-        ServerRequestInterface $request,
-        int $status,
-        string $detail,
-        string $title = '',
-        string $type = '',
-        array $additional = []
+        $request,
+        $status,
+        $detail,
+        $title = '',
+        $type = '',
+        $additional = []
     ): ResponseInterface {
         $status = $this->normalizeStatus($status);
         $title  = $title ?: $this->createTitleFromStatus($status);
@@ -268,10 +291,13 @@ class ProblemDetailsResponseFactory
 
     /**
      * Create a problem-details response from a Throwable.
+     *
+     * @param ServerRequestInterface $request
+     * @param Throwable $e
      */
     public function createResponseFromThrowable(
-        ServerRequestInterface $request,
-        Throwable $e
+        $request,
+        $e
     ): ResponseInterface {
         if ($e instanceof Exception\ProblemDetailsExceptionInterface) {
             return $this->createResponse(
@@ -299,14 +325,20 @@ class ProblemDetailsResponseFactory
         );
     }
 
-    protected function getThrowableCode(Throwable $e): int
+    /**
+     * @param Throwable $e
+     */
+    protected function getThrowableCode($e): int
     {
         $code = $e->getCode();
 
         return is_int($code) ? $code : 0;
     }
 
-    protected function generateJsonResponse(array $payload): ResponseInterface
+    /**
+     * @param mixed[] $payload
+     */
+    protected function generateJsonResponse($payload): ResponseInterface
     {
         return $this->generateResponse(
             $payload['status'],
@@ -341,7 +373,10 @@ class ProblemDetailsResponseFactory
         return $return;
     }
 
-    protected function generateXmlResponse(array $payload): ResponseInterface
+    /**
+     * @param mixed[] $payload
+     */
+    protected function generateXmlResponse($payload): ResponseInterface
     {
         // Ensure any objects are flattened to arrays first
         $content = json_decode(json_encode($payload), true);
@@ -361,7 +396,12 @@ class ProblemDetailsResponseFactory
         );
     }
 
-    protected function generateResponse(int $status, string $contentType, string $payload): ResponseInterface
+    /**
+     * @param int $status
+     * @param string $contentType
+     * @param string $payload
+     */
+    protected function generateResponse($status, $contentType, $payload): ResponseInterface
     {
         $response = $this->responseFactory->createResponse($status);
         $response->getBody()->write($payload);
@@ -374,10 +414,16 @@ class ProblemDetailsResponseFactory
     {
         $accept    = $request->getHeaderLine('Accept') ?: '*/*';
         $mediaType = (new Negotiator())->getBest($accept, self::NEGOTIATION_PRIORITIES);
+        $callable  = [$this, 'generateXmlResponse'];
+        $callable  = [$this, 'generateJsonResponse'];
 
         return ! $mediaType || false === strpos($mediaType->getValue(), 'json')
-            ? Closure::fromCallable([$this, 'generateXmlResponse'])
-            : Closure::fromCallable([$this, 'generateJsonResponse']);
+            ? function () use ($callable) {
+                return $callable(...func_get_args());
+            }
+            : function () use ($callable) {
+                return $callable(...func_get_args());
+            };
     }
 
     private function normalizeStatus(int $status): int

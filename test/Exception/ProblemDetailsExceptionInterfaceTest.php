@@ -27,7 +27,10 @@ class ProblemDetailsExceptionInterfaceTest extends TestCase
         'foo' => 'bar',
     ];
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         $this->exception = new class (
             $this->status,
@@ -49,7 +52,10 @@ class ProblemDetailsExceptionInterfaceTest extends TestCase
         };
     }
 
-    public function testCanPullDetailsIndividually(): void
+    /**
+     * @return void
+     */
+    public function testCanPullDetailsIndividually()
     {
         $this->assertEquals($this->status, $this->exception->getStatus());
         $this->assertEquals($this->detail, $this->exception->getDetail());
@@ -58,7 +64,10 @@ class ProblemDetailsExceptionInterfaceTest extends TestCase
         $this->assertEquals($this->additional, $this->exception->getAdditionalData());
     }
 
-    public function testCanCastDetailsToArray(): void
+    /**
+     * @return void
+     */
+    public function testCanCastDetailsToArray()
     {
         $this->assertEquals([
             'status' => $this->status,
@@ -69,7 +78,10 @@ class ProblemDetailsExceptionInterfaceTest extends TestCase
         ], $this->exception->toArray());
     }
 
-    public function testIsJsonSerializable(): void
+    /**
+     * @return void
+     */
+    public function testIsJsonSerializable()
     {
         $problem = json_decode(json_encode($this->exception), true);
 

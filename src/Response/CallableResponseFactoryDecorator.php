@@ -24,6 +24,10 @@ final class CallableResponseFactoryDecorator implements ResponseFactoryInterface
         $this->responseFactory = $responseFactory;
     }
 
+    /**
+     * @param int $code
+     * @param string $reasonPhrase
+     */
     public function createResponse(int $code = 200, string $reasonPhrase = ''): ResponseInterface
     {
         return $this->getResponseFromCallable()->withStatus($code, $reasonPhrase);

@@ -26,9 +26,10 @@ use function set_error_handler;
 class ProblemDetailsMiddleware implements MiddlewareInterface
 {
     /** @var callable[] */
-    private array $listeners = [];
+    private $listeners = [];
 
-    private ProblemDetailsResponseFactory $responseFactory;
+    /** @var ProblemDetailsResponseFactory */
+    private $responseFactory;
 
     public function __construct(ProblemDetailsResponseFactory $responseFactory)
     {
@@ -37,6 +38,9 @@ class ProblemDetailsMiddleware implements MiddlewareInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -70,8 +74,11 @@ class ProblemDetailsMiddleware implements MiddlewareInterface
      * These instances are all immutable, and the return values of
      * listeners are ignored; use listeners for reporting purposes
      * only.
+     *
+     * @param callable $listener
+     * @return void
      */
-    public function attachListener(callable $listener): void
+    public function attachListener($listener)
     {
         if (in_array($listener, $this->listeners, true)) {
             return;
@@ -107,7 +114,7 @@ class ProblemDetailsMiddleware implements MiddlewareInterface
          * @param int $errline
          * @throws ErrorException if error is not within the error_reporting mask.
          */
-        return function (int $errno, string $errstr, string $errfile, int $errline): void {
+        return function (int $errno, string $errstr, string $errfile, int $errline) {
             if (! (error_reporting() & $errno)) {
                 // error_reporting does not include this error
                 return;
@@ -119,12 +126,14 @@ class ProblemDetailsMiddleware implements MiddlewareInterface
 
     /**
      * Trigger all error listeners.
+     *
+     * @return void
      */
     private function triggerListeners(
         Throwable $error,
         ServerRequestInterface $request,
         ResponseInterface $response
-    ): void {
+    ) {
         array_walk($this->listeners, function ($listener) use ($error, $request, $response) {
             $listener($error, $request, $response);
         });
